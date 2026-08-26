@@ -1,0 +1,18 @@
+{
+  "name": "intelligent-email-assistant",
+  "version": "1.0.0",
+  "description": "AI-Powered Full-Stack Email Assistant with Gmail OAuth 2.0, Multi-Step Workflows, Execution Queue, and Real-Time Updates",
+  "scripts": {
+    "dev": "concurrently -n \"BACKEND,FRONTEND\" -c \"blue,green\" \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "build": "cd backend && npm run build && cd ../frontend && npm run build",
+    "db:push": "cd backend && npx prisma db push",
+    "db:seed": "cd backend && npm run seed",
+    "db:studio": "cd backend && npx prisma studio"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

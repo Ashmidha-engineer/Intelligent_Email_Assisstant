@@ -1,0 +1,125 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --palette-cream: #F7F5EB;
+  --palette-sand: #EAE0DA;
+  --palette-sky: #D5E3E8;
+  --palette-mist: #A0C3D2;
+  --palette-blush: #EAC7C7;
+  --palette-coral: #E8A2A2;
+}
+
+body {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--palette-cream);
+  color: #1e293b;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code, pre {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(234, 224, 218, 0.4);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #A0C3D2;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #E8A2A2;
+}
+
+/* Reusable Palette Surface Utilities */
+.palette-surface {
+  background-color: #ffffff;
+  border: 1px solid rgba(160, 195, 210, 0.4);
+  box-shadow: 0 4px 16px -2px rgba(160, 195, 210, 0.15);
+}
+
+.palette-surface-sand {
+  background-color: #EAE0DA;
+  border: 1px solid rgba(160, 195, 210, 0.35);
+}
+
+.palette-surface-sky {
+  background-color: #D5E3E8;
+  border: 1px solid rgba(160, 195, 210, 0.5);
+}
+
+.palette-card-active {
+  background-color: #ffffff;
+  border-color: #E8A2A2;
+  box-shadow: 0 4px 20px -2px rgba(232, 162, 162, 0.25);
+}
+
+.palette-btn-coral {
+  background-color: #E8A2A2;
+  color: #ffffff;
+  transition: all 0.2s ease-in-out;
+}
+
+.palette-btn-coral:hover {
+  background-color: #dc8e8e;
+  box-shadow: 0 4px 14px rgba(232, 162, 162, 0.4);
+  transform: translateY(-1px);
+}
+
+.palette-btn-coral:active {
+  transform: translateY(0);
+}
+
+.palette-btn-mist {
+  background-color: #A0C3D2;
+  color: #0f172a;
+  transition: all 0.2s ease-in-out;
+}
+
+.palette-btn-mist:hover {
+  background-color: #8eb3c3;
+  transform: translateY(-1px);
+}
+
+.palette-badge-blush {
+  background-color: rgba(234, 199, 199, 0.55);
+  color: #883a3a;
+  border: 1px solid rgba(232, 162, 162, 0.4);
+}
+
+.palette-badge-sky {
+  background-color: rgba(213, 227, 232, 0.7);
+  color: #1e3a5f;
+  border: 1px solid rgba(160, 195, 210, 0.5);
+}
+
+.palette-badge-sand {
+  background-color: rgba(234, 224, 218, 0.75);
+  color: #4a3b32;
+  border: 1px solid rgba(213, 227, 232, 0.6);
+}
+
+.palette-pill-active {
+  background-color: #D5E3E8;
+  color: #0f172a;
+  font-weight: 600;
+  border: 1px solid #A0C3D2;
+}
+
+.ai-gradient-header {
+  background: linear-gradient(135deg, #475569 0%, #0f172a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
