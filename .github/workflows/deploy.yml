@@ -19,9 +19,6 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./Intelligent_Email_Assisstant/Intelligent_Email_Assisstant/frontend
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -31,11 +28,20 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build project
-        run: npx vite build
+      - name: Find Path and Build
+        run: |
+          # 1. Automatically find the exact folder containing your package.json
+          REAL_PATH=$(find . -name "package.json" -not -path "*/node_modules/*" -exec dirname {} \; | head -n 1)
+          echo "The exact path to your frontend folder is: $REAL_PATH"
+          
+          # 2. Navigate there, install and build
+          cd "$REAL_PATH"
+          npm ci
+          npx vite build
+          
+          # 3. Copy the output folder over to the workspace
+          mkdir -p $GITHUB_WORKSPACE/build_output
+          cp -r dist/* $GITHUB_WORKSPACE/build_output/
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -43,7 +49,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './Intelligent_Email_Assisstant/Intelligent_Email_Assisstant/frontend/dist'
+          path: './build_output'
 
       - name: Deploy to GitHub Pages
         id: deployment
