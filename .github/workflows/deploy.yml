@@ -30,18 +30,38 @@ jobs:
 
       - name: Find Path and Build
         run: |
-          # 1. Automatically find the exact folder containing your package.json
-          REAL_PATH=$(find . -name "package.json" -not -path "*/node_modules/*" -exec dirname {} \; | head -n 1)
-          echo "The exact path to your frontend folder is: $REAL_PATH"
+          # 1. Locate package.json and index.html
+          PKG_DIR=$(find . -name "package.json" -not -path "*/node_modules/*" -exec dirname {} \; | head -n 1)
+          HTML_PATH=$(find . -name "index.html" -not -path "*/node_modules/*" -not -path "*/dist/*" | head -n 1)
           
-          # 2. Navigate there, install and build
-          cd "$REAL_PATH"
+          echo "Package.json directory: $PKG_DIR"
+          echo "Index.html path: $HTML_PATH"
+          
+          # 2. Go to the project directory and install packages
+          cd "$PKG_DIR"
           npm ci
-          npx vite build
           
-          # 3. Copy the output folder over to the workspace
+          # 3. Build Vite by explicitly defining where index.html lives relative to package.json
+          # If index.html is sitting inside a 'frontend' subfolder, we pass that as the root.
+          if [[ "$HTML_PATH" == *"/frontend/"* ]]; then
+            echo "Building with frontend subfolder root..."
+            npx vite build --root ./frontend --outDir ../dist
+          else
+            # Try building from the folder where index.html is located
+            HTML_DIR=$(dirname "$HTML_PATH")
+            if [ "$PKG_DIR" != "$HTML_DIR" ]; then
+              cp "$GITHUB_WORKSPACE/$HTML_PATH" .
+            fi
+            npx vite build
+          fi
+          
+          # 4. Copy the compiled distribution folder safely over to workspace
           mkdir -p $GITHUB_WORKSPACE/build_output
-          cp -r dist/* $GITHUB_WORKSPACE/build_output/
+          if [ -d "dist" ]; then
+            cp -r dist/* $GITHUB_WORKSPACE/build_output/
+          else
+            cp -r ../dist/* $GITHUB_WORKSPACE/build_output/
+          fi
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
