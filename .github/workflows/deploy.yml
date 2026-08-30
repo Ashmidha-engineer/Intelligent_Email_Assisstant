@@ -19,6 +19,9 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./Intelligent_Email_Assisstant/Intelligent_Email_Assisstant/frontend
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -28,29 +31,11 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install and Build Frontend
-        run: |
-          # 1. Locate the absolute file paths
-          PKG_DIR=$(find . -name "package.json" -not -path "*/node_modules/*" -exec dirname {} \; | head -n 1)
-          HTML_PATH=$(find . -name "index.html" -not -path "*/node_modules/*" -not -path "*/dist/*" | head -n 1)
-          
-          echo "Package.json folder: $PKG_DIR"
-          echo "Index.html location: $HTML_PATH"
-          
-          # 2. If index.html is outside the package directory, copy it in so Vite can see it
-          if [ "$PKG_DIR" != "$(dirname "$HTML_PATH")" ]; then
-            echo "Moving index.html into the package directory for a smooth Vite build..."
-            cp "$HTML_PATH" "$PKG_DIR/"
-          fi
-          
-          # 3. Move into the project directory and build
-          cd "$PKG_DIR"
-          npm ci
-          npx vite build
-          
-          # 4. Export the built asset folder
-          mkdir -p $GITHUB_WORKSPACE/build_output
-          cp -r dist/* $GITHUB_WORKSPACE/build_output/
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npx vite build
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -58,7 +43,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './build_output'
+          path: './Intelligent_Email_Assisstant/Intelligent_Email_Assisstant/frontend/dist'
 
       - name: Deploy to GitHub Pages
         id: deployment
