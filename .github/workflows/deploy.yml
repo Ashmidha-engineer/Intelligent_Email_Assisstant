@@ -28,40 +28,20 @@ jobs:
         with:
           node-version: 20
 
-      - name: Find Path and Build
+      - name: Locate Frontend and Build
         run: |
-          # 1. Locate package.json and index.html
-          PKG_DIR=$(find . -name "package.json" -not -path "*/node_modules/*" -exec dirname {} \; | head -n 1)
-          HTML_PATH=$(find . -name "index.html" -not -path "*/node_modules/*" -not -path "*/dist/*" | head -n 1)
+          # Find the exact folder where vite.config.ts lives
+          FRONTEND_DIR=$(find . -name "vite.config.ts" -not -path "*/node_modules/*" -exec dirname {} \; | head -n 1)
+          echo "The true frontend directory is: $FRONTEND_DIR"
           
-          echo "Package.json directory: $PKG_DIR"
-          echo "Index.html path: $HTML_PATH"
-          
-          # 2. Go to the project directory and install packages
-          cd "$PKG_DIR"
+          # Navigate into it, install, and run a clean build
+          cd "$FRONTEND_DIR"
           npm ci
+          npx vite build
           
-          # 3. Build Vite by explicitly defining where index.html lives relative to package.json
-          # If index.html is sitting inside a 'frontend' subfolder, we pass that as the root.
-          if [[ "$HTML_PATH" == *"/frontend/"* ]]; then
-            echo "Building with frontend subfolder root..."
-            npx vite build --root ./frontend --outDir ../dist
-          else
-            # Try building from the folder where index.html is located
-            HTML_DIR=$(dirname "$HTML_PATH")
-            if [ "$PKG_DIR" != "$HTML_DIR" ]; then
-              cp "$GITHUB_WORKSPACE/$HTML_PATH" .
-            fi
-            npx vite build
-          fi
-          
-          # 4. Copy the compiled distribution folder safely over to workspace
+          # Safely copy the built folder over to the workspace
           mkdir -p $GITHUB_WORKSPACE/build_output
-          if [ -d "dist" ]; then
-            cp -r dist/* $GITHUB_WORKSPACE/build_output/
-          else
-            cp -r ../dist/* $GITHUB_WORKSPACE/build_output/
-          fi
+          cp -r dist/* $GITHUB_WORKSPACE/build_output/
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
