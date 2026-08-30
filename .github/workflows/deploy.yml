@@ -30,38 +30,27 @@ jobs:
 
       - name: Install and Build Frontend
         run: |
-          # 1. Find the folder containing package.json
-          TARGET_DIR=$(find . -name "package.json" -not -path "*/node_modules/*" -exec dirname {} \; | head -n 1)
-          echo "Found frontend directory at: $TARGET_DIR"
-          cd "$TARGET_DIR"
-          
-          # 2. Find where index.html actually lives
+          # 1. Locate the absolute file paths
+          PKG_DIR=$(find . -name "package.json" -not -path "*/node_modules/*" -exec dirname {} \; | head -n 1)
           HTML_PATH=$(find . -name "index.html" -not -path "*/node_modules/*" -not -path "*/dist/*" | head -n 1)
-          echo "Found index.html at: $HTML_PATH"
           
-          # 3. Install packages
+          echo "Package.json folder: $PKG_DIR"
+          echo "Index.html location: $HTML_PATH"
+          
+          # 2. If index.html is outside the package directory, copy it in so Vite can see it
+          if [ "$PKG_DIR" != "$(dirname "$HTML_PATH")" ]; then
+            echo "Moving index.html into the package directory for a smooth Vite build..."
+            cp "$HTML_PATH" "$PKG_DIR/"
+          fi
+          
+          # 3. Move into the project directory and build
+          cd "$PKG_DIR"
           npm ci
+          npx vite build
           
-          # 4. Build Vite, passing the correct location of index.html if it's nested
-          if [ "$HTML_PATH" != "./index.html" ] && [ ! -f "./index.html" ]; then
-            echo "index.html is nested. Creating a placeholder link for Vite..."
-            HTML_DIR=$(dirname "$HTML_PATH")
-            npx vite build --root "$HTML_DIR" --outDir "../../dist"
-          else
-            npx vite build
-          fi
-          
-          # 5. Safely copy the output folder
+          # 4. Export the built asset folder
           mkdir -p $GITHUB_WORKSPACE/build_output
-          if [ -d "dist" ]; then
-            cp -r dist/* $GITHUB_WORKSPACE/build_output/
-          elif [ -d "../dist" ]; then
-            cp -r ../dist/* $GITHUB_WORKSPACE/build_output/
-          else
-            # Fallback search for compiled folder
-            DIST_DIR=$(find . -type d -name "dist" -not -path "*/node_modules/*" | head -n 1)
-            cp -r "$DIST_DIR"/* $GITHUB_WORKSPACE/build_output/
-          fi
+          cp -r dist/* $GITHUB_WORKSPACE/build_output/
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
