@@ -19,9 +19,6 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./frontend
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -31,11 +28,19 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build project
-        run: npm run build
+      - name: Install and Build Frontend
+        run: |
+          # Automatically locate the frontend folder containing package.json
+          TARGET_DIR=$(find . -name "package.json" -not -path "*/node_modules/*" -exec dirname {} \; | head -n 1)
+          echo "Found frontend directory at: $TARGET_DIR"
+          
+          cd "$TARGET_DIR"
+          npm ci
+          npm run build
+          
+          # Move compiled files to a safe, predictable root workspace folder
+          mkdir -p $GITHUB_WORKSPACE/build_output
+          cp -r dist/* $GITHUB_WORKSPACE/build_output/
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -43,7 +48,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './frontend/dist'
+          path: './build_output'
 
       - name: Deploy to GitHub Pages
         id: deployment
